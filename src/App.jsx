@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import Confetti from "./components/Confetti.jsx";
+import FloatingDoodles from "./components/FloatingDoodles.jsx";
 import LoadingScreen from "./components/LoadingScreen.jsx";
 import Modal from "./components/Modal.jsx";
 import FinalStep from "./steps/FinalStep.jsx";
@@ -116,14 +117,32 @@ export default function App() {
   }, [step, totalSteps]);
 
   return (
-    <div className="min-h-screen px-4 py-10">
+    <div
+      className="relative min-h-screen px-4 py-8 sm:py-12"
+      style={{
+        paddingBottom: "calc(2rem + env(safe-area-inset-bottom))",
+      }}
+    >
       {showConfetti && <Confetti />}
+      <FloatingDoodles />
 
-      <div className="mx-auto flex max-w-md flex-col items-center">
+      <div className="mx-auto flex w-full max-w-md flex-col items-center">
+        <div className="mb-4 flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-ink/50">
+          <span className="rounded-full bg-white/70 px-4 py-2 shadow-sm">Saturday Sparkle</span>
+        </div>
+
         <motion.div
           layout
-          className="w-full rounded-[32px] border border-white/70 bg-white/70 p-6 shadow-card backdrop-blur"
+          className="relative w-full overflow-hidden rounded-[36px] border border-white/70 bg-white/75 p-5 shadow-card backdrop-blur sm:p-7"
+          whileHover={{ y: -2 }}
+          transition={{ type: "spring", stiffness: 120 }}
         >
+          <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br from-peach/70 via-lilac/60 to-sky/70 blur-2xl" />
+          <div className="pointer-events-none absolute -bottom-8 -left-10 h-32 w-32 rounded-full bg-gradient-to-tr from-rose/70 via-peach/60 to-blush/70 blur-2xl" />
+          <div className="absolute left-6 top-6 rounded-full bg-white/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] text-ink/50 shadow-sm">
+            {step === 0 ? "Invite" : step <= totalSteps ? `Step ${step}` : "Finale"}
+          </div>
+
           <AnimatePresence mode="wait">
             {isLoading ? (
               <motion.div
@@ -145,6 +164,7 @@ export default function App() {
                 animate="animate"
                 exit="exit"
                 transition={{ duration: 0.25 }}
+                className="pt-6"
               >
                 {step === 0 && (
                   <IntroStep
@@ -173,7 +193,7 @@ export default function App() {
         </motion.div>
 
         <div className="mt-6 text-center text-xs font-semibold uppercase tracking-[0.2em] text-ink/50">
-          Toronto Saturday Edition
+          Toronto Saturday Edition · 6:00 PM
         </div>
       </div>
 

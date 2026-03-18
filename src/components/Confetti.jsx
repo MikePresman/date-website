@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useMemo } from "react";
 
-const colors = ["#FADCE1", "#DFF6ED", "#DDEBFF", "#EADFFB", "#FFE3D1"];
+const emojis = ["💖", "✨", "🎀", "🌸", "💫", "🫧"];
 
 export default function Confetti() {
   const pieces = useMemo(() =>
@@ -9,8 +9,8 @@ export default function Confetti() {
       id: index,
       left: Math.random() * 100,
       delay: Math.random() * 0.6,
-      size: 6 + Math.random() * 6,
-      color: colors[index % colors.length],
+      size: 16 + Math.random() * 10,
+      emoji: emojis[index % emojis.length],
       duration: 2.2 + Math.random() * 0.8,
     })), []
   );
@@ -20,21 +20,21 @@ export default function Confetti() {
       {pieces.map((piece) => (
         <motion.span
           key={piece.id}
-          className="absolute top-0 rounded-full"
+          className="absolute top-0"
           style={{
             left: `${piece.left}%`,
-            width: piece.size,
-            height: piece.size,
-            backgroundColor: piece.color,
+            fontSize: piece.size,
           }}
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: "110vh", opacity: [0, 1, 1, 0] }}
+          initial={{ y: -20, opacity: 0, rotate: -10 }}
+          animate={{ y: "110vh", opacity: [0, 1, 1, 0], rotate: 12 }}
           transition={{
             duration: piece.duration,
             delay: piece.delay,
             ease: "easeIn",
           }}
-        />
+        >
+          {piece.emoji}
+        </motion.span>
       ))}
     </div>
   );
