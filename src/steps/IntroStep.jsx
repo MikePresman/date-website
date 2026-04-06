@@ -5,17 +5,21 @@ export default function IntroStep({ onYes, onNoClick, onNoHover, noPos }) {
     <div className="flex flex-col gap-6">
       <div className="text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.35em] text-ink/50">
-          Important Question
+          Date Check-In
         </p>
         <h1 className="mt-3 text-3xl font-extrabold text-ink sm:text-4xl">
-          <span className="font-display">Spend the day with Mike</span>
+          <span className="font-display flex flex-col items-center leading-tight">
+            <span>Mike x Mia</span>
+            <span aria-hidden="true">❤️</span>
+            <span>Date Night</span>
+          </span>
         </h1>
         <p className="mt-2 text-sm font-semibold text-ink/70 sm:text-base">
-          Saturday edition, curated with extra sparkle.
+          Pick dinner and our after-dinner game.
         </p>
         <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs font-semibold text-ink/60 sm:text-sm">
-          <span className="rounded-full bg-bubble px-3 py-1 text-ink/70">💖 100% yes vibes</span>
-          <span className="rounded-full bg-bubble px-3 py-1 text-ink/70">✨ cute + cozy</span>
+          <span className="rounded-full bg-bubble px-3 py-1 text-ink/70">🍽 dinner pick</span>
+          <span className="rounded-full bg-bubble px-3 py-1 text-ink/70">🎲 game pick</span>
         </div>
       </div>
 
@@ -26,7 +30,7 @@ export default function IntroStep({ onYes, onNoClick, onNoHover, noPos }) {
           onClick={onYes}
           className="sparkle w-full rounded-3xl bg-gradient-to-r from-rose via-peach to-lilac px-4 py-3 text-base font-semibold text-ink shadow-glow"
         >
-          Yes, let's do it 💌
+          Start Date Night Form 💌
         </motion.button>
 
         <div className="relative h-14">
@@ -39,7 +43,7 @@ export default function IntroStep({ onYes, onNoClick, onNoHover, noPos }) {
             whileHover={{ rotate: 1.5 }}
             className="absolute left-0 top-0 rounded-3xl border border-ink/20 bg-white/80 px-6 py-3 text-base font-semibold text-ink shadow-sm"
           >
-            Maybe later
+            Not today
           </motion.button>
         </div>
       </div>

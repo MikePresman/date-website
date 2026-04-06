@@ -8,42 +8,94 @@ import FinalStep from "./steps/FinalStep.jsx";
 import IntroStep from "./steps/IntroStep.jsx";
 import OptionStep from "./steps/OptionStep.jsx";
 
-const stepData = [
+const surpriseOption = { label: "Mike can suprise me for this choice :)", emoji: "✨" };
+const globalSurpriseOption = { label: "Mike can suprise me for everything :)", emoji: "🎁" };
+
+const withSurpriseChoices = (options) => [...options, surpriseOption, globalSurpriseOption];
+
+const baseStepData = [
   {
-    title: "Pick our first stop",
-    subtitle: "Step 1",
-    options: [
-      { label: "Grab Starbucks", emoji: "☕" },
-      { label: "Go to the Aquarium", emoji: "🐠" },
-      { label: "Walk through Trinity Bellwoods", emoji: "🌳" },
-    ],
+    id: "appetizer",
+    title: "Appetizers",
+    subtitle: "Appetizer",
+    options: withSurpriseChoices([
+      { label: "Mini Charcuterie Board", emoji: "🧀" },
+      { label: "Avocado Toast with Mango Slices", emoji: "🥑" },
+    ]),
   },
   {
-    title: "Next adventure",
-    subtitle: "Step 2",
-    options: [
-      { label: "Explore Ossington bars", emoji: "🍸" },
-      { label: "Grab tacos", emoji: "🌮" },
-      { label: "Get sushi", emoji: "🍣" },
-    ],
+    id: "main_course_base",
+    title: "Main Course (a): pick one",
+    subtitle: "Main A",
+    options: withSurpriseChoices([
+      { label: "Pasta", emoji: "🍝" },
+      { label: "Rice", emoji: "🍚" },
+      { label: "Mashed Potatoes", emoji: "🥔" },
+    ]),
   },
   {
-    title: "Final activity",
-    subtitle: "Step 3",
-    options: [
-      { label: "Snakes & Lattes", emoji: "🎲" },
-      { label: "Random adventure", emoji: "🎒" },
-      { label: "Surprise me", emoji: "✨" },
-    ],
+    id: "main_course_protein",
+    title: "Main Course (b): pick one",
+    subtitle: "Main B",
+    options: withSurpriseChoices([
+      { label: "Lemon Chicken", emoji: "🍋" },
+      { label: "Steak", emoji: "🥩" },
+      { label: "Lamb", emoji: "🍖" },
+    ]),
+  },
+  {
+    id: "main_course_salad",
+    title: "Main Course (c): pick one",
+    subtitle: "Main C",
+    options: withSurpriseChoices([
+      { label: "Garden salad", emoji: "🥗" },
+      { label: "Ceasar salad", emoji: "🥬" },
+      { label: "Quinoa salad", emoji: "🌿" },
+    ]),
+  },
+  {
+    id: "sweet_treat",
+    title: "Sweet Treat (d): pick one",
+    subtitle: "Dessert",
+    options: withSurpriseChoices([
+      { label: "Cake", emoji: "🍰" },
+      { label: "Cupcake", emoji: "🧁" },
+      { label: "Cheesecake", emoji: "🍰" },
+      { label: "Ice cream", emoji: "🍨" },
+    ]),
+  },
+  {
+    id: "game",
+    title: "What game should we play after?",
+    subtitle: "After Dinner",
+    options: withSurpriseChoices([
+      { label: "Card game dating", emoji: "🃏" },
+      { label: "Puzzle", emoji: "🧩" },
+      { label: "Paint by numbers", emoji: "🎨" },
+    ]),
   },
 ];
 
+const donenessStep = {
+  id: "protein_doneness",
+  title: "How would you like it cooked?",
+  subtitle: "Doneness",
+  options: withSurpriseChoices([
+    { label: "Medium", emoji: "🔥" },
+    { label: "Medium-well", emoji: "🔥" },
+    { label: "Medium-rare", emoji: "🔥" },
+    { label: "Well", emoji: "🔥" },
+    { label: "Rare", emoji: "🔥" },
+    { label: "Raw", emoji: "🔥" },
+  ]),
+};
+
 const loadingMessages = [
-  "Analyzing optimal Toronto date path...",
-  "Checking taco availability...",
-  "Evaluating fun levels...",
-  "Calibrating adventure vibes...",
-  "Locating cutest coffee spots...",
+  "Picking the tastiest options...",
+  "Calibrating Date Night energy...",
+  "Saving the best plan...",
+  "Preparing your custom evening...",
+  "Double-checking cozy vibes...",
 ];
 
 const cardVariants = {
@@ -54,16 +106,30 @@ const cardVariants = {
 
 export default function App() {
   const [step, setStep] = useState(0);
-  const [selections, setSelections] = useState([]);
+  const [selections, setSelections] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState(loadingMessages[0]);
   const [showModal, setShowModal] = useState(false);
   const [noPos, setNoPos] = useState({ x: 0, y: 0 });
   const [showConfetti, setShowConfetti] = useState(false);
 
-  const totalSteps = stepData.length;
+  const stepData = useMemo(() => {
+    const proteinChoice = selections.main_course_protein?.label;
+    const shouldAskDoneness = proteinChoice === "Steak" || proteinChoice === "Lamb";
 
-  const currentSelections = useMemo(() => selections.filter(Boolean), [selections]);
+    if (!shouldAskDoneness) {
+      return baseStepData;
+    }
+
+    const proteinIndex = baseStepData.findIndex((item) => item.id === "main_course_protein");
+    return [
+      ...baseStepData.slice(0, proteinIndex + 1),
+      donenessStep,
+      ...baseStepData.slice(proteinIndex + 1),
+    ];
+  }, [selections]);
+
+  const totalSteps = stepData.length;
 
   const startLoadingTo = (nextStep) => {
     const message = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
@@ -77,11 +143,29 @@ export default function App() {
   };
 
   const handleYes = () => startLoadingTo(1);
-
   const handleOptionSelect = (option) => {
+    if (option.label === globalSurpriseOption.label) {
+      setSelections({ global_surprise: globalSurpriseOption });
+      startLoadingTo(totalSteps + 1);
+      return;
+    }
+
+    const currentStep = stepData[step - 1];
+
     setSelections((prev) => {
-      const updated = [...prev];
-      updated[step - 1] = option;
+      const updated = {
+        ...prev,
+        [currentStep.id]: option,
+      };
+
+      if (
+        currentStep.id === "main_course_protein" &&
+        option.label !== "Steak" &&
+        option.label !== "Lamb"
+      ) {
+        delete updated.protein_doneness;
+      }
+
       return updated;
     });
 
@@ -102,7 +186,7 @@ export default function App() {
     setTimeout(() => {
       setShowModal(false);
       setStep(0);
-      setSelections([]);
+      setSelections({});
       setNoPos({ x: 0, y: 0 });
     }, 1400);
   };
@@ -128,7 +212,7 @@ export default function App() {
 
       <div className="mx-auto flex w-full max-w-md flex-col items-center">
         <div className="mb-4 flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-ink/50">
-          <span className="rounded-full bg-white/70 px-4 py-2 shadow-sm">Saturday Sparkle</span>
+          <span className="rounded-full bg-white/70 px-4 py-2 shadow-sm">Mike x Mia Date Night</span>
         </div>
 
         <motion.div
@@ -140,7 +224,7 @@ export default function App() {
           <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br from-peach/70 via-lilac/60 to-sky/70 blur-2xl" />
           <div className="pointer-events-none absolute -bottom-8 -left-10 h-32 w-32 rounded-full bg-gradient-to-tr from-rose/70 via-peach/60 to-blush/70 blur-2xl" />
           <div className="absolute left-6 top-6 rounded-full bg-white/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] text-ink/50 shadow-sm">
-            {step === 0 ? "Invite" : step <= totalSteps ? `Step ${step}` : "Finale"}
+            {step === 0 ? "Invite" : step <= totalSteps ? stepData[step - 1].subtitle : "Submit"}
           </div>
 
           <AnimatePresence mode="wait">
@@ -185,7 +269,7 @@ export default function App() {
                 )}
 
                 {step === totalSteps + 1 && (
-                  <FinalStep selections={currentSelections} />
+                  <FinalStep selections={selections} stepData={stepData} />
                 )}
               </motion.div>
             )}
@@ -193,7 +277,7 @@ export default function App() {
         </motion.div>
 
         <div className="mt-6 text-center text-xs font-semibold uppercase tracking-[0.2em] text-ink/50">
-          Toronto Saturday Edition · 6:00 PM
+          Mobile First · Ready to Share
         </div>
       </div>
 
